@@ -26,16 +26,16 @@ class AudioUploaderScreen extends StatefulWidget {
   const AudioUploaderScreen({Key? key}) : super(key: key);
 
   @override
-  _AudioUploaderScreenState createState() => _AudioUploaderScreenState();
+  AudioUploaderScreenState createState() => AudioUploaderScreenState();
 }
 
-class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
-  Uint8List? _selectedFileBytes;
-  String? _selectedFileName;
-  String? _transcriptionResult;
+class AudioUploaderScreenState extends State<AudioUploaderScreen> {
+  Uint8List? selectedFileBytes;
+  String? selectedFileName;
+  String? transcriptionResult;
 
   // Método para seleccionar un archivo de audio
-  Future<void> _selectFile() async {
+  Future<void> selectFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['mp3', 'wav', 'm4a'], // Extensiones soportadas
@@ -43,15 +43,15 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
 
     if (result != null) {
       setState(() {
-        _selectedFileBytes = result.files.single.bytes;
-        _selectedFileName = result.files.single.name;
+        selectedFileBytes = result.files.single.bytes;
+        selectedFileName = result.files.single.name;
       });
     }
   }
 
   // Método para enviar el archivo al backend
-  Future<void> _uploadFile() async {
-    if (_selectedFileBytes == null || _selectedFileName == null) {
+  Future<void> uploadFile() async {
+    if (selectedFileBytes == null || selectedFileName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor selecciona un archivo primero')),
       );
@@ -65,8 +65,8 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
     request.files.add(
       http.MultipartFile.fromBytes(
         'file',
-        _selectedFileBytes!,
-        filename: _selectedFileName,
+        selectedFileBytes!,
+        filename: selectedFileName,
       ),
     );
 
@@ -75,7 +75,7 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
     if (response.statusCode == 200) {
       var responseBody = await response.stream.bytesToString();
       setState(() {
-        _transcriptionResult = responseBody;
+        transcriptionResult = responseBody;
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -96,24 +96,24 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-              onPressed: _selectFile,
+              onPressed: selectFile,
               child: const Text('Seleccionar archivo de audio'),
             ),
             const SizedBox(height: 16.0),
-            if (_selectedFileName != null)
+            if (selectedFileName != null)
               Text(
-                'Archivo seleccionado: $_selectedFileName',
+                'Archivo seleccionado: $selectedFileName',
                 textAlign: TextAlign.center,
               ),
             const SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: _uploadFile,
+              onPressed: uploadFile,
               child: const Text('Enviar al backend'),
             ),
             const SizedBox(height: 32.0),
-            if (_transcriptionResult != null)
+            if (transcriptionResult != null)
               Text(
-                'Resultado de la transcripción:\n$_transcriptionResult',
+                'Resultado de la transcripción:\n$transcriptionResult',
                 textAlign: TextAlign.center,
               ),
           ],
