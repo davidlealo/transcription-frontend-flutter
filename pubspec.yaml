@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   # Librerías necesarias
-  http: ^0.15.0  # Para interactuar con el backend
+  http: ^1.2.2  # Para interactuar con el backend
   file_picker: ^5.2.3  # Para seleccionar archivos
 
   # Esto viene por defecto para manejar Material Design

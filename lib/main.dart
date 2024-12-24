@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
@@ -30,25 +30,28 @@ class AudioUploaderScreen extends StatefulWidget {
 }
 
 class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
-  String? _selectedFilePath;
+  Uint8List? _selectedFileBytes;
+  String? _selectedFileName;
   String? _transcriptionResult;
 
   // Método para seleccionar un archivo de audio
   Future<void> _selectFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a'], // Extensiones soportadas
     );
 
     if (result != null) {
       setState(() {
-        _selectedFilePath = result.files.single.path;
+        _selectedFileBytes = result.files.single.bytes;
+        _selectedFileName = result.files.single.name;
       });
     }
   }
 
   // Método para enviar el archivo al backend
   Future<void> _uploadFile() async {
-    if (_selectedFilePath == null) {
+    if (_selectedFileBytes == null || _selectedFileName == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Por favor selecciona un archivo primero')),
       );
@@ -60,7 +63,11 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
       Uri.parse('http://localhost:8000/process_audio/'), // Cambia al endpoint de tu backend
     );
     request.files.add(
-      await http.MultipartFile.fromPath('file', _selectedFilePath!),
+      http.MultipartFile.fromBytes(
+        'file',
+        _selectedFileBytes!,
+        filename: _selectedFileName,
+      ),
     );
 
     var response = await request.send();
@@ -93,9 +100,9 @@ class _AudioUploaderScreenState extends State<AudioUploaderScreen> {
               child: const Text('Seleccionar archivo de audio'),
             ),
             const SizedBox(height: 16.0),
-            if (_selectedFilePath != null)
+            if (_selectedFileName != null)
               Text(
-                'Archivo seleccionado: $_selectedFilePath',
+                'Archivo seleccionado: $_selectedFileName',
                 textAlign: TextAlign.center,
               ),
             const SizedBox(height: 16.0),
