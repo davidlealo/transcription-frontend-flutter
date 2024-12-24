@@ -23,10 +23,10 @@ void main() {
     // Actualiza el estado para reflejar un archivo seleccionado
     await tester.runAsync(() async {
       // Accede al estado del widget y simula el archivo seleccionado
-      final state = tester.state<_AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
+      final state = tester.state<AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
       state.setState(() {
-        state._selectedFileName = 'archivo_prueba.mp3';
-        state._selectedFileBytes = Uint8List.fromList([0, 1, 2, 3]); // Bytes simulados
+        state.selectedFileName = 'archivo_prueba.mp3';
+        state.selectedFileBytes = Uint8List.fromList([0, 1, 2, 3]); // Bytes simulados
       });
     });
     await tester.pump();
@@ -44,9 +44,9 @@ void main() {
 
     // Como la lógica del backend no puede probarse directamente, simula el resultado esperado
     await tester.runAsync(() async {
-      final state = tester.state<_AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
+      final state = tester.state<AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
       state.setState(() {
-        state._transcriptionResult = 'Texto transcrito simulado';
+        state.transcriptionResult = 'Texto transcrito simulado';
       });
     });
     await tester.pump();
