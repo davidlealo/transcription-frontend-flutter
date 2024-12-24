@@ -1,3 +1,4 @@
+import 'dart:typed_data'; // Importación necesaria para Uint8List
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:transcription_frontend_flutter/main.dart';
