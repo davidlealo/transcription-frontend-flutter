@@ -1,30 +1,56 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:transcription_frontend_flutter/main.dart';
+import 'package:your_package_name/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('Prueba de flujo de carga y transcripción de audio', (WidgetTester tester) async {
+    // Construye la aplicación
     await tester.pumpWidget(const MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Verifica que el título está presente
+    expect(find.text('Transcripción de Audio'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Encuentra el botón para seleccionar archivo y simula un tap
+    final selectFileButton = find.text('Seleccionar archivo de audio');
+    expect(selectFileButton, findsOneWidget);
+
+    // Simula un tap en el botón de seleccionar archivo
+    await tester.tap(selectFileButton);
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Como FilePicker no puede ser testeado directamente, simularemos el estado posterior
+    // Actualiza el estado para reflejar un archivo seleccionado
+    await tester.runAsync(() async {
+      // Accede al estado del widget y simula el archivo seleccionado
+      final state = tester.state<_AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
+      state.setState(() {
+        state._selectedFileName = 'archivo_prueba.mp3';
+        state._selectedFileBytes = Uint8List.fromList([0, 1, 2, 3]); // Bytes simulados
+      });
+    });
+    await tester.pump();
+
+    // Verifica que el archivo seleccionado se muestra
+    expect(find.text('Archivo seleccionado: archivo_prueba.mp3'), findsOneWidget);
+
+    // Encuentra el botón para enviar archivo y simula un tap
+    final uploadFileButton = find.text('Enviar al backend');
+    expect(uploadFileButton, findsOneWidget);
+
+    // Simula un tap en el botón de enviar
+    await tester.tap(uploadFileButton);
+    await tester.pump();
+
+    // Como la lógica del backend no puede probarse directamente, simula el resultado esperado
+    await tester.runAsync(() async {
+      final state = tester.state<_AudioUploaderScreenState>(find.byType(AudioUploaderScreen));
+      state.setState(() {
+        state._transcriptionResult = 'Texto transcrito simulado';
+      });
+    });
+    await tester.pump();
+
+    // Verifica que el resultado de la transcripción se muestra correctamente
+    expect(find.textContaining('Resultado de la transcripción: Texto transcrito simulado'), findsOneWidget);
   });
 }
